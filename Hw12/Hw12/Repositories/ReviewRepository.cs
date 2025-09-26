@@ -20,10 +20,10 @@ namespace Hw12.Repositories
                 .ToList();
         }
 
-        public Review? GetUserReviewForBook(int userId, int bookId)
+        public Review? GetUserReviewForBook(int userId, int reviewId)
         {
             return _db.Reviews
-                .FirstOrDefault(r => r.UserId == userId && r.BookId == bookId);
+                .FirstOrDefault(r => r.UserId == userId && r.Id == reviewId);
         }
 
         public List<Review> GetAllUserReviews(int userId)

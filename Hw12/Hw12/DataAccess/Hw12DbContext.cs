@@ -18,6 +18,7 @@ namespace Hw12.DataAccess
         public DbSet<Category> Categories { get; set; }
         public DbSet<BorrowedBook> BorrowedBooks { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Wishlist> wishlists { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -27,101 +28,49 @@ namespace Hw12.DataAccess
         }
 
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<User>(entity =>
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                entity.ToTable("Users");
-                entity.HasMany(u => u.BorrowedBooks)
-                      .WithOne(bb => bb.User)
-                      .HasForeignKey(bb => bb.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                // Book ↔ Category (many-to-one)
+                modelBuilder.Entity<Book>()
+                    .HasOne(b => b.Category)
+                    .WithMany(c => c.Books)
+                    .HasForeignKey(b => b.CategoryId);
 
-                entity.HasMany<Review>()
-                      .WithOne()
-                      .HasForeignKey(r => r.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
+                // BorrowedBook ↔ User (many-to-one)
+                modelBuilder.Entity<BorrowedBook>()
+                    .HasOne(bb => bb.User)
+                    .WithMany(u => u.BorrowedBooks)
+                    .HasForeignKey(bb => bb.UserId);
 
-                entity.Property(u => u.UserName)
-                      .IsRequired()
-                      .HasMaxLength(50);
+                // BorrowedBook ↔ Book (many-to-one)
+                modelBuilder.Entity<BorrowedBook>()
+                    .HasOne(bb => bb.Book)
+                    .WithMany()
+                    .HasForeignKey(bb => bb.BookId);
 
-                entity.Property(u => u.Password)
-                      .IsRequired()
-                      .HasMaxLength(50);
-            });
+                // Review (UserId + BookId)
+                modelBuilder.Entity<Review>()
+                    .HasOne<Book>()
+                    .WithMany()
+                    .HasForeignKey(r => r.BookId);
 
-            modelBuilder.Entity<Admin>(entity =>
-            {
-                entity.ToTable("Admins");
+                modelBuilder.Entity<Review>()
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(r => r.UserId);
 
-                entity.Property(a => a.UserName)
-                      .IsRequired()
-                      .HasMaxLength(50);
+                // Wishlist (UserId + BookId)
+                modelBuilder.Entity<Wishlist>()
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey(w => w.UserId);
 
-                entity.Property(a => a.Password)
-                      .IsRequired()
-                      .HasMaxLength(50);
-            });
+                modelBuilder.Entity<Wishlist>()
+                    .HasOne<Book>()
+                    .WithMany()
+                    .HasForeignKey(w => w.BookId);
 
-            modelBuilder.Entity<Book>(entity =>
-            {
-                entity.ToTable("Books");
-
-                entity.HasMany<BorrowedBook>()
-                      .WithOne(bb => bb.Book)
-                      .HasForeignKey(bb => bb.BookId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasMany<Review>()
-                      .WithOne()
-                      .HasForeignKey(r => r.BookId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.Property(b => b.Title)
-                      .IsRequired()
-                      .HasMaxLength(100);
-            });
-
-            modelBuilder.Entity<Category>(entity =>
-            {
-                entity.ToTable("Categories");
-
-                entity.HasMany(c => c.Books)
-                      .WithOne(b => b.Category)
-                      .HasForeignKey(b => b.CategoryId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.Property(c => c.Name)
-                      .IsRequired()
-                      .HasMaxLength(50);
-            });
-
-            modelBuilder.Entity<BorrowedBook>(entity =>
-            {
-                entity.ToTable("BorrowedBooks");
-                entity.Property(bb => bb.BorrowDate)
-                      .IsRequired();
-            });
-
-            modelBuilder.Entity<Review>(entity =>
-            {
-                entity.ToTable("Reviews");
-
-                entity.Property(r => r.Comment)
-                      .HasMaxLength(500);
-
-                entity.Property(r => r.Rating)
-                      .IsRequired();
-
-                entity.Property(r => r.IsConfirmed)
-                      .HasDefaultValue(false);
-
-                entity.Property(r => r.CreatedAt)
-                      .IsRequired();
-            });
+                base.OnModelCreating(modelBuilder);
+            }
         }
     }
-}

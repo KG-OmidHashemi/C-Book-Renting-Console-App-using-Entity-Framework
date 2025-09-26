@@ -35,6 +35,7 @@ namespace Hw12.Services
             _userRepo.Add(user);
             return true;
         }
+
         public bool RegisterAdmin(string username, string password)
         {
             var existing = _adminRepo.GetByUsername(username);
@@ -65,6 +66,7 @@ namespace Hw12.Services
                 throw new Exception("Password can't be empty!");
             return user;
         }
+
         public Admin? LoginAdmin(string username, string password)
         {
             var admin = _adminRepo.GetByUsername(username);

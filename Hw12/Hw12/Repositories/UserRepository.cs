@@ -25,5 +25,16 @@ namespace Hw12.Repositories
             return _db.Users
                 .FirstOrDefault(u => u.UserName == username);
         }
+
+        public List<User> GetAllUsers()
+        {
+            return _db.Users.ToList();
+        }
+
+        public void Update(User user)
+        {
+            _db.Users.Update(user); 
+            _db.SaveChanges();
+        }
     }
 }

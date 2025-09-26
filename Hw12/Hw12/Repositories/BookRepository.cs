@@ -1,4 +1,5 @@
 ﻿using Hw12.DataAccess;
+using Hw12.Enteties;
 using Hw12.Entities;
 using Hw12.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,25 @@ namespace Hw12.Repositories
         {
             _db.Books.Add(book);
             _db.SaveChanges();
+        }
+
+        public Book FindBookWithBookId(int bookId)
+        {
+            var book = _db.Books.FirstOrDefault(b => b.Id == bookId);
+            if (book == null)
+                return null;
+            return book;
+        }
+
+        public bool RemoveBook(User user, int bookId)
+        {
+
+            var book = FindBookWithBookId(bookId);
+            if (book == null)
+                return false;
+            _db.Books.Remove(book);
+            _db.SaveChanges();
+            return true;
         }
     }
 }

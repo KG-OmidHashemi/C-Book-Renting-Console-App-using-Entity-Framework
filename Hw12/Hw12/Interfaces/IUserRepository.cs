@@ -11,5 +11,7 @@ namespace Hw12.Interface
     {
         public void Add(User user);
         public User? GetByUsername(string username);
+        void Update(User user);
+        public List<User> GetAllUsers();
     }
 }

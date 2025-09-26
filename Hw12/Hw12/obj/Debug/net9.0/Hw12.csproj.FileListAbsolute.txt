@@ -146,3 +146,4 @@ C:\Users\Omid\source\repos\Hw12\Hw12\obj\Debug\net9.0\refint\Hw12.dll
 C:\Users\Omid\source\repos\Hw12\Hw12\obj\Debug\net9.0\Hw12.pdb
 C:\Users\Omid\source\repos\Hw12\Hw12\obj\Debug\net9.0\Hw12.genruntimeconfig.cache
 C:\Users\Omid\source\repos\Hw12\Hw12\obj\Debug\net9.0\ref\Hw12.dll
+C:\Users\Omid\source\repos\Hw12\Hw12\obj\Debug\net9.0\Hw12.sourcelink.json

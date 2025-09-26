@@ -142,7 +142,12 @@ static void UserMenu(User user)
         Console.WriteLine("5.Add a Comment");
         Console.WriteLine("6.Edit a Comment");
         Console.WriteLine("7.Delete a Comment");
-        Console.WriteLine("8.Logout");
+        Console.WriteLine("8.Add a book to wishlist");
+        Console.WriteLine("9.Remove wishlist");
+        Console.WriteLine("10.Show Wishlist");
+        Console.WriteLine("11.Return Book");
+        Console.WriteLine("12.Show Late Penalty price");
+        Console.WriteLine("13.Logout");
 
         string choice = Console.ReadLine();
 
@@ -263,7 +268,7 @@ static void UserMenu(User user)
                         Console.Write("Rate the Book from number 1-5:");
                         int rating = int.Parse(Console.ReadLine());
 
-                        userService.EditReview(user, reviewId, comment, review.BookId, rating);
+                        userService.EditReview(user, reviewId, comment, review.Id, rating);
                         Console.WriteLine("Review updated");
                     }
                 }
@@ -285,7 +290,7 @@ static void UserMenu(User user)
                     foreach (var r in myReviews)
                         Console.WriteLine($"{r.Id}: {r.Comment} ({r.Rating}) - Book ID: {r.BookId}");
 
-                    Console.Write("Select the Review ID you want to Delete:");
+                    Console.Write("Select the review ID you want to Delete:");
                     int reviewId = int.Parse(Console.ReadLine());
                     var review = myReviews.FirstOrDefault(r => r.Id == reviewId);
 
@@ -306,10 +311,122 @@ static void UserMenu(User user)
 
                 Console.ReadKey();
                 break;
-
-
-
             case "8":
+                Console.Clear();
+                try
+                {
+                    ShowAllBooks();
+                    Console.Write("Enter the Book ID to add to your wishlist: ");
+                    bookId = int.Parse(Console.ReadLine());
+                    userService.AddToWishList(user, bookId);
+                    Console.WriteLine("Book added to wishlist successfully!");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+                Console.ReadKey();
+                break;
+
+            case "9":
+                Console.Clear();
+                try
+                {
+                    var wishlist = userService.ShowWishlist(user);
+                    if (wishlist.Count == 0)
+                    {
+                        Console.WriteLine("Your wishlist is empty.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Your wishlist:");
+                        foreach (var w in wishlist)
+                        {
+                            Console.WriteLine($"Wishlist ID: {w.Id}, Book ID: {w.BookId}, Added on: {w.CreatedAt}");
+                        }
+                    }
+                    Console.Write("Enter the Wishlist ID you want to remove: ");
+                    int wishlistId = int.Parse(Console.ReadLine());
+                    userService.RemoveWishlist(user, wishlistId);
+                    Console.WriteLine("Wishlist item removed successfully!");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+                Console.ReadKey();
+                break;
+
+            case "10":
+                Console.Clear();
+                try
+                {
+                    var wishlist = userService.ShowWishlist(user);
+                    if (wishlist.Count == 0)
+                    {
+                        Console.WriteLine("Your wishlist is empty.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Your wishlist:");
+                        foreach (var w in wishlist)
+                        {
+                            Console.WriteLine($"Wishlist ID: {w.Id}, Book ID: {w.BookId}, Added on: {w.CreatedAt}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
+                Console.ReadKey();
+                break;
+            case "11":
+                Console.Clear();
+                try
+                {
+                    borrowedBooks = userService.ShowBorrowedBooks(user);
+                    if (borrowedBooks.Count == 0)
+                    {
+                        Console.WriteLine("You have no borrowed books.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Your borrowed books:");
+                        foreach (var b in borrowedBooks)
+                        {
+                            Console.WriteLine($"{b.BookId}: {b.Book.Title} (Borrowed on {b.BorrowDate.ToShortDateString()})");
+                        }
+
+                        Console.Write("Enter the Book ID you want to return: ");
+                        if (int.TryParse(Console.ReadLine(), out bookId))
+                        {
+                            userService.ReturnBook(user, bookId);
+                            Console.WriteLine("Book returned successfully!");
+                            if (user.PenaltyAmount > 0)
+                                Console.WriteLine($"You have accrued a penalty of {user.PenaltyAmount} Toman.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid Book ID.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                Console.ReadKey();
+                break;
+
+            case "12":
+                Console.Clear();
+                int penalty = userService.GetUserPenalty(user);
+                Console.WriteLine($"Your unpaid penalty amount is: {penalty} Toman");
+                Console.ReadKey();
+                break;
+
+            case "13":
                 isLoggedIn = false;
                 break;
 
@@ -342,7 +459,9 @@ static void UserMenu(User user)
 
             foreach (var b in boooks)
             {
-                Console.WriteLine($"{b.Id}.{b.Title}");
+                int wishlistCount = userService.WishlistCount(b.Id);
+
+                Console.WriteLine($"{b.Id}.{b.Title},WishListed by {wishlistCount}");
                 foreach (var r in reviews)
                 {
                     if (r.BookId == b.Id && r.IsConfirmed)
@@ -383,7 +502,8 @@ static void AdminMenu(Admin admin)
         Console.WriteLine("3.View Books in Category");
         Console.WriteLine("4.Add Book to Category");
         Console.WriteLine("5.Confirm a Review");
-        Console.WriteLine("6.Logout");
+        Console.WriteLine("6.See users penalties");
+        Console.WriteLine("7.Logout");
 
         string choice = Console.ReadLine();
 
@@ -506,6 +626,25 @@ static void AdminMenu(Admin admin)
                 break;
 
             case "6":
+                Console.Clear();
+                try
+                {
+                    var users = adminService.GetAllUsersPenalties();
+                    if (users.Count == 0)
+                        Console.WriteLine("No users found.");
+                    else
+                        foreach (var u in users)
+                            Console.WriteLine($"{u.UserName} - Unpaid Penalty: {u.PenaltyAmount} Toman");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                Console.ReadKey();
+                break;
+
+
+            case "7":
                 return;
 
             default:

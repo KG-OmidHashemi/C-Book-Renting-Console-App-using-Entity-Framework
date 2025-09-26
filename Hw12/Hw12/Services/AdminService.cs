@@ -1,4 +1,5 @@
-﻿using Hw12.Entities;
+﻿using Hw12.Enteties;
+using Hw12.Entities;
 using Hw12.Interface;
 using Hw12.Repositories;
 using System;
@@ -14,6 +15,7 @@ namespace Hw12.Services
         ICategoryRepository _categoryRepo = new CategoryRepository();
         IBookRepository _bookRepo = new BookRepository();
         IReviewRepository _reviewRepo = new ReviewRepository();
+        IUserRepository _userRepo = new UserRepository();   
 
         public bool AddCategory(string categoryName)
         {
@@ -37,7 +39,6 @@ namespace Hw12.Services
 
         }
 
-
         public bool AddBookToCategory(int categoryId, string bookTitle)
         {
             if (_bookRepo.GetByTitleAndCategory(bookTitle, categoryId) != null)
@@ -57,6 +58,7 @@ namespace Hw12.Services
                 throw new Exception("Category does not exist!");
             return categories;
         }
+
         public List<Book> ShowAllBooks()
         {
             return _bookRepo.GetAllBooks().ToList();
@@ -91,6 +93,7 @@ namespace Hw12.Services
             }
             return null;
         }
+
         public bool ConfirmReview(int reviewId)
         {
             var selectedReview = SelectReview(reviewId);
@@ -104,6 +107,11 @@ namespace Hw12.Services
             {
                 throw new Exception("review not found");
             }
+        }
+
+        public List<User> GetAllUsersPenalties()
+        {
+            return _userRepo.GetAllUsers();
         }
 
 
